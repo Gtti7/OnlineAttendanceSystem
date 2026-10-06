@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Reports</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header>
+
+    <h2>ATTENDANCE REPORT</h2>
+
+    <a href="dashboard.html">
+        Dashboard
+    </a>
+
+</header>
+
+
+<div class="container">
+
+
+    <div class="report-controls">
+
+        <label>
+            Select Date
+        </label>
+
+        <input
+            type="date"
+            id="reportDate"
+        >
+
+        <button id="dateReport">
+            Date-wise Report
+        </button>
+
+
+        <br><br>
+
+
+        <label>
+            Select Month
+        </label>
+
+        <input
+            type="month"
+            id="reportMonth"
+        >
+
+        <button id="monthlyReport">
+            Monthly Report
+        </button>
+
+    </div>
+
+
+    <h2 id="reportTitle">
+        Attendance Report
+    </h2>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Roll</th>
+
+                    <th>Student Name</th>
+
+                    <th>Course</th>
+
+                    <th>Status</th>
+
+                    <th>Date</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="reportTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+</div>
+
+
+<script
+    type="module"
+    src="reports.js">
+</script>
+
+</body>
+
+</html>

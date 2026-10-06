@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header>
+
+    <h2>ONLINE ATTENDANCE SYSTEM</h2>
+
+    <button id="logoutBtn">
+        Logout
+    </button>
+
+</header>
+
+
+<div class="container">
+
+    <div class="top-section">
+
+        <div>
+
+            <label>Select Date</label>
+
+            <input
+                type="date"
+                id="attendanceDate"
+            >
+
+        </div>
+
+    </div>
+
+
+    <h2>Student Attendance</h2>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Roll</th>
+
+                    <th>Student Name</th>
+
+                    <th>Course</th>
+
+                    <th>Present</th>
+
+                    <th>Absent</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="studentTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <button
+        class="save-btn"
+        id="saveAttendance">
+
+        SAVE ATTENDANCE
+
+    </button>
+
+
+    <p id="message"></p>
+
+
+    <div class="menu-buttons">
+
+        <a href="students.html">
+            Student Management
+        </a>
+
+        <a href="reports.html">
+            Attendance Reports
+        </a>
+
+    </div>
+
+</div>
+
+
+<script
+    type="module"
+    src="dashboard.js">
+</script>
+
+</body>
+
+</html>
