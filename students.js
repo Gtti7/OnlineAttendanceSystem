@@ -2,7 +2,8 @@
 import { auth, db } from "./firebase-config.js";
 
 import {
-    onAuthStateChanged
+    onAuthStateChanged,
+    signOut
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
 import {
@@ -13,42 +14,68 @@ import {
     remove
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
+
 const form = document.getElementById("studentForm");
 const table = document.getElementById("studentsTable");
 
-// Check Login
+
+// Authentication Check
+
 onAuthStateChanged(auth, (user) => {
+
     if (!user) {
+
         window.location.href = "index.html";
+
     } else {
+
         loadStudents();
+
     }
+
 });
 
+
 // Add Student
+
 form.addEventListener("submit", async (e) => {
 
     e.preventDefault();
 
     try {
 
-        const roll = document.getElementById("roll").value.trim();
+        // IMPORTANT: HTML ID is regn, not roll
+
+        const regn = document.getElementById("regn").value.trim();
+
         const name = document.getElementById("name").value.trim();
+
         const course = document.getElementById("course").value.trim();
 
-        if (!roll || !name || !course) {
+
+        if (!regn || !name || !course) {
+
             alert("Please fill all fields!");
+
             return;
+
         }
+
 
         const studentRef = push(ref(db, "students"));
 
         await set(studentRef, {
-            roll: roll,
+
+            regn: regn,
+
             name: name,
+
             course: course,
+
             createdAt: new Date().toISOString()
+
         });
+
 
         alert("Student added successfully!");
 
@@ -56,9 +83,10 @@ form.addEventListener("submit", async (e) => {
 
         await loadStudents();
 
+
     } catch (error) {
 
-        console.error("Firebase Error:", error);
+        console.error(error);
 
         alert("Student Save Failed: " + error.message);
 
@@ -66,7 +94,9 @@ form.addEventListener("submit", async (e) => {
 
 });
 
+
 // Load Students
+
 async function loadStudents() {
 
     try {
@@ -75,13 +105,22 @@ async function loadStudents() {
 
         table.innerHTML = "";
 
+
         if (!snapshot.exists()) {
-            table.innerHTML =
-                "<tr><td colspan='4'>No Students Found</td></tr>";
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="4">No Students Found</td>
+                </tr>
+            `;
+
             return;
+
         }
 
+
         const data = snapshot.val();
+
 
         for (const id in data) {
 
@@ -89,8 +128,9 @@ async function loadStudents() {
 
             const row = document.createElement("tr");
 
-            const rollCell = document.createElement("td");
-            rollCell.textContent = student.roll || "";
+
+            const regnCell = document.createElement("td");
+            regnCell.textContent = student.regn || "";
 
             const nameCell = document.createElement("td");
             nameCell.textContent = student.name || "";
@@ -98,32 +138,42 @@ async function loadStudents() {
             const courseCell = document.createElement("td");
             courseCell.textContent = student.course || "";
 
+
             const actionCell = document.createElement("td");
 
             const deleteButton = document.createElement("button");
+
             deleteButton.textContent = "Delete";
+
             deleteButton.className = "delete-btn";
+
 
             deleteButton.addEventListener("click", async () => {
 
                 if (confirm("Delete this student?")) {
 
                     try {
+
                         await remove(ref(db, `students/${id}`));
-                        alert("Student deleted!");
+
+                        alert("Student deleted successfully!");
+
                         await loadStudents();
 
                     } catch (error) {
+
                         alert(error.message);
+
                     }
 
                 }
 
             });
 
+
             actionCell.appendChild(deleteButton);
 
-            row.appendChild(rollCell);
+            row.appendChild(regnCell);
             row.appendChild(nameCell);
             row.appendChild(courseCell);
             row.appendChild(actionCell);
@@ -134,7 +184,7 @@ async function loadStudents() {
 
     } catch (error) {
 
-        console.error("Load Error:", error);
+        console.error(error);
 
         alert("Unable to load students: " + error.message);
 
