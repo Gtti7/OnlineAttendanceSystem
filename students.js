@@ -24,13 +24,9 @@ const table = document.getElementById("studentsTable");
 onAuthStateChanged(auth, (user) => {
 
     if (!user) {
-
         window.location.href = "index.html";
-
     } else {
-
         loadStudents();
-
     }
 
 });
@@ -44,38 +40,23 @@ form.addEventListener("submit", async (e) => {
 
     try {
 
-        // IMPORTANT: HTML ID is regn, not roll
-
         const regn = document.getElementById("regn").value.trim();
-
         const name = document.getElementById("name").value.trim();
-
         const course = document.getElementById("course").value.trim();
 
-
         if (!regn || !name || !course) {
-
             alert("Please fill all fields!");
-
             return;
-
         }
-
 
         const studentRef = push(ref(db, "students"));
 
         await set(studentRef, {
-
             regn: regn,
-
             name: name,
-
             course: course,
-
             createdAt: new Date().toISOString()
-
         });
-
 
         alert("Student added successfully!");
 
@@ -83,11 +64,9 @@ form.addEventListener("submit", async (e) => {
 
         await loadStudents();
 
-
     } catch (error) {
 
         console.error(error);
-
         alert("Student Save Failed: " + error.message);
 
     }
@@ -105,29 +84,27 @@ async function loadStudents() {
 
         table.innerHTML = "";
 
-
         if (!snapshot.exists()) {
 
-            table.innerHTML = `
-                <tr>
-                    <td colspan="4">No Students Found</td>
-                </tr>
-            `;
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+
+            cell.colSpan = 4;
+            cell.textContent = "No Students Found";
+
+            row.appendChild(cell);
+            table.appendChild(row);
 
             return;
-
         }
 
-
         const data = snapshot.val();
-
 
         for (const id in data) {
 
             const student = data[id];
 
             const row = document.createElement("tr");
-
 
             const regnCell = document.createElement("td");
             regnCell.textContent = student.regn || "";
@@ -138,15 +115,12 @@ async function loadStudents() {
             const courseCell = document.createElement("td");
             courseCell.textContent = student.course || "";
 
-
             const actionCell = document.createElement("td");
 
             const deleteButton = document.createElement("button");
 
             deleteButton.textContent = "Delete";
-
             deleteButton.className = "delete-btn";
-
 
             deleteButton.addEventListener("click", async () => {
 
@@ -170,7 +144,6 @@ async function loadStudents() {
 
             });
 
-
             actionCell.appendChild(deleteButton);
 
             row.appendChild(regnCell);
@@ -185,7 +158,6 @@ async function loadStudents() {
     } catch (error) {
 
         console.error(error);
-
         alert("Unable to load students: " + error.message);
 
     }
