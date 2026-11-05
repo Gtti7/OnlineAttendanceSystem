@@ -1,119 +1,193 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+import { auth, db } from "./firebase-config.js";
 
-    <meta charset="UTF-8">
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Student Management</title>
-
-    <link rel="stylesheet" href="style.css">
-
-</head>
-
-<body>
+import {
+    ref,
+    push,
+    set,
+    get,
+    remove
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
 
-<header>
-
-    <h2>STUDENT MANAGEMENT</h2>
-
-    <a href="dashboard.html">
-        Dashboard
-    </a>
-
-</header>
+const form = document.getElementById("studentForm");
+const table = document.getElementById("studentsTable");
 
 
-<div class="container">
+// Authentication Check
+
+onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+
+        window.location.href = "index.html";
+
+    } else {
+
+        loadStudents();
+
+    }
+
+});
 
 
-    <div class="form-box">
+// Add Student
 
-        <h2>Add Student</h2>
+form.addEventListener("submit", async (e) => {
 
+    e.preventDefault();
 
-        <form id="studentForm">
+    try {
 
+        // IMPORTANT: HTML ID is regn, not roll
 
-            <input
-                type="text"
-                id="regn"
-                placeholder="Registration Number"
-                required
-            >
+        const regn = document.getElementById("regn").value.trim();
 
+        const name = document.getElementById("name").value.trim();
 
-            <input
-                type="text"
-                id="name"
-                placeholder="Student Name"
-                required
-            >
+        const course = document.getElementById("course").value.trim();
 
 
-            <input
-                type="text"
-                id="course"
-                placeholder="Course"
-                required
-            >
+        if (!regn || !name || !course) {
+
+            alert("Please fill all fields!");
+
+            return;
+
+        }
 
 
-            <button type="submit">
-                Add Student
-            </button>
+        const studentRef = push(ref(db, "students"));
+
+        await set(studentRef, {
+
+            regn: regn,
+
+            name: name,
+
+            course: course,
+
+            createdAt: new Date().toISOString()
+
+        });
 
 
-        </form>
+        alert("Student added successfully!");
 
-    </div>
+        form.reset();
+
+        await loadStudents();
 
 
-    <h2>Student List</h2>
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Student Save Failed: " + error.message);
+
+    }
+
+});
 
 
-    <div class="table-container">
+// Load Students
 
-        <table>
+async function loadStudents() {
 
-            <thead>
+    try {
 
+        const snapshot = await get(ref(db, "students"));
+
+        table.innerHTML = "";
+
+
+        if (!snapshot.exists()) {
+
+            table.innerHTML = `
                 <tr>
-
-                    <th>Registration Number</th>
-
-                    <th>Name</th>
-
-                    <th>Course</th>
-
-                    <th>Action</th>
-
+                    <td colspan="4">No Students Found</td>
                 </tr>
+            `;
 
-            </thead>
+            return;
 
-
-            <tbody id="studentsTable">
-
-            </tbody>
-
-        </table>
-
-    </div>
+        }
 
 
-</div>
+        const data = snapshot.val();
 
 
-<script
-    type="module"
-    src="students.js">
-</script>
+        for (const id in data) {
 
-</body>
+            const student = data[id];
 
-</html>
+            const row = document.createElement("tr");
+
+
+            const regnCell = document.createElement("td");
+            regnCell.textContent = student.regn || "";
+
+            const nameCell = document.createElement("td");
+            nameCell.textContent = student.name || "";
+
+            const courseCell = document.createElement("td");
+            courseCell.textContent = student.course || "";
+
+
+            const actionCell = document.createElement("td");
+
+            const deleteButton = document.createElement("button");
+
+            deleteButton.textContent = "Delete";
+
+            deleteButton.className = "delete-btn";
+
+
+            deleteButton.addEventListener("click", async () => {
+
+                if (confirm("Delete this student?")) {
+
+                    try {
+
+                        await remove(ref(db, `students/${id}`));
+
+                        alert("Student deleted successfully!");
+
+                        await loadStudents();
+
+                    } catch (error) {
+
+                        alert(error.message);
+
+                    }
+
+                }
+
+            });
+
+
+            actionCell.appendChild(deleteButton);
+
+            row.appendChild(regnCell);
+            row.appendChild(nameCell);
+            row.appendChild(courseCell);
+            row.appendChild(actionCell);
+
+            table.appendChild(row);
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Unable to load students: " + error.message);
+
+    }
+
+}
