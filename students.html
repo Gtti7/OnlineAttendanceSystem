@@ -1,193 +1,84 @@
 
-import { auth, db } from "./firebase-config.js";
+<!DOCTYPE html>
+<html lang="en">
 
-import {
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-import {
-    ref,
-    push,
-    set,
-    get,
-    remove
-} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+    <title>Student Management</title>
 
+    <link rel="stylesheet" href="style.css">
+</head>
 
-const form = document.getElementById("studentForm");
-const table = document.getElementById("studentsTable");
+<body>
 
+<header>
+    <h2>STUDENT MANAGEMENT</h2>
+    <a href="dashboard.html">Dashboard</a>
+</header>
 
-// Authentication Check
+<div class="container">
 
-onAuthStateChanged(auth, (user) => {
+    <div class="form-box">
 
-    if (!user) {
+        <h2>Add Student</h2>
 
-        window.location.href = "index.html";
+        <form id="studentForm">
 
-    } else {
+            <input
+                type="text"
+                id="regn"
+                placeholder="Registration Number"
+                required
+            >
 
-        loadStudents();
+            <input
+                type="text"
+                id="name"
+                placeholder="Student Name"
+                required
+            >
 
-    }
+            <input
+                type="text"
+                id="course"
+                placeholder="Course"
+                required
+            >
 
-});
+            <button type="submit">
+                Add Student
+            </button>
 
+        </form>
 
-// Add Student
+    </div>
 
-form.addEventListener("submit", async (e) => {
+    <h2>Student List</h2>
 
-    e.preventDefault();
+    <div class="table-container">
 
-    try {
+        <table>
 
-        // IMPORTANT: HTML ID is regn, not roll
-
-        const regn = document.getElementById("regn").value.trim();
-
-        const name = document.getElementById("name").value.trim();
-
-        const course = document.getElementById("course").value.trim();
-
-
-        if (!regn || !name || !course) {
-
-            alert("Please fill all fields!");
-
-            return;
-
-        }
-
-
-        const studentRef = push(ref(db, "students"));
-
-        await set(studentRef, {
-
-            regn: regn,
-
-            name: name,
-
-            course: course,
-
-            createdAt: new Date().toISOString()
-
-        });
-
-
-        alert("Student added successfully!");
-
-        form.reset();
-
-        await loadStudents();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert("Student Save Failed: " + error.message);
-
-    }
-
-});
-
-
-// Load Students
-
-async function loadStudents() {
-
-    try {
-
-        const snapshot = await get(ref(db, "students"));
-
-        table.innerHTML = "";
-
-
-        if (!snapshot.exists()) {
-
-            table.innerHTML = `
+            <thead>
                 <tr>
-                    <td colspan="4">No Students Found</td>
+                    <th>Registration Number</th>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Action</th>
                 </tr>
-            `;
+            </thead>
 
-            return;
+            <tbody id="studentsTable"></tbody>
 
-        }
+        </table>
 
+    </div>
 
-        const data = snapshot.val();
+</div>
 
+<script type="module" src="students.js"></script>
 
-        for (const id in data) {
-
-            const student = data[id];
-
-            const row = document.createElement("tr");
-
-
-            const regnCell = document.createElement("td");
-            regnCell.textContent = student.regn || "";
-
-            const nameCell = document.createElement("td");
-            nameCell.textContent = student.name || "";
-
-            const courseCell = document.createElement("td");
-            courseCell.textContent = student.course || "";
-
-
-            const actionCell = document.createElement("td");
-
-            const deleteButton = document.createElement("button");
-
-            deleteButton.textContent = "Delete";
-
-            deleteButton.className = "delete-btn";
-
-
-            deleteButton.addEventListener("click", async () => {
-
-                if (confirm("Delete this student?")) {
-
-                    try {
-
-                        await remove(ref(db, `students/${id}`));
-
-                        alert("Student deleted successfully!");
-
-                        await loadStudents();
-
-                    } catch (error) {
-
-                        alert(error.message);
-
-                    }
-
-                }
-
-            });
-
-
-            actionCell.appendChild(deleteButton);
-
-            row.appendChild(regnCell);
-            row.appendChild(nameCell);
-            row.appendChild(courseCell);
-            row.appendChild(actionCell);
-
-            table.appendChild(row);
-
-        }
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert("Unable to load students: " + error.message);
-
-    }
-
-}
+</body>
+</html>
